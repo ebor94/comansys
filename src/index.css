@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-fiori: 'Open Sans', sans-serif;
+}
+
+body {
+  font-family: var(--font-fiori);
+  @apply text-fiori-text;
+}
