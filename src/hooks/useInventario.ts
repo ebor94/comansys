@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { InventarioItem, LoteItem, CENTROS } from '../components/inventario/types';
@@ -82,7 +83,7 @@ export const useInventario = () => {
 
     setIsLoading(true);
     try {
-      console.log(centroSeleccionado,descripcion);
+      //console.log(centroSeleccionado,descripcion);
       const searchParams = {
         BUSQUEDA: descripcion.toUpperCase(),
         DTLUBICA: "X",
@@ -92,10 +93,10 @@ export const useInventario = () => {
         PARACANAL: ""
       };
       const inventario : InventarioItem[] = await buscarInventario(searchParams)
-      console.log(inventario);
+     // console.log(inventario);
       setInventarioData(inventario);
     } catch (error) {
-      console.error('Error al consultar inventario:', error);
+     //console.error('Error al consultar inventario:', error);
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -113,10 +114,10 @@ export const useInventario = () => {
       const reponse = await inventarioLotes( material,centro, almacen  )         
       const mockLotesData: LoteItem[] = reponse.data   
       setLotesData(mockLotesData);
-      console.log(mockLotesData);
+      //console.log(mockLotesData);
       setMostrarLotes(true);
     } catch (error) {
-      console.error('Error al consultar lotes:', error);
+      //console.error('Error al consultar lotes:', error);
       Swal.fire({
         icon: 'error',
         title: 'Error',

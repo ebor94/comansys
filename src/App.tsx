@@ -9,6 +9,7 @@ import Inventario from './pages/Inventario';
 import { useAuthStore } from './stores/authStore';
 import Login from './pages/Login';
 import ProfilePage from './pages/ProfilePage';
+import InvPublic from './pages/InvPub';
 
 
 
@@ -19,6 +20,7 @@ function App() {
       <Routes>
         {/* Rutas públicas */}
         <Route path="/login" element={<Login />} />
+        <Route path="/invpub" element={<InvPublic />} />
         <Route 
           path="/" 
           element={

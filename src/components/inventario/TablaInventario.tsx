@@ -60,7 +60,7 @@ export const TablaInventario: React.FC<TablaInventarioProps> = ({
           const value = info.row.original.nolotes || '';  
           const row = info.row.original;
           
-          return value !== "0" ? (
+          return value !== 0  ? (
             <button
               className="text-fiori-blue hover:underline focus:outline-none"
               onClick={() => onMostrarLotes(
