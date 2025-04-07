@@ -1,45 +1,78 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+interface SapUserData {
+  parid: string;
+  parva: string;
+  partxt: string;
+}
+
 interface AuthState {
   isAuthenticated: boolean;
+  token: string | null;
   user: {
     username: string;
     role: string;
+    sapData?: SapUserData[];
   } | null;
-  login: (username: string, password: string) => Promise<boolean>;
+ 
+  loginSap: (usuario: string, codvend: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set ) => ({
+    (set) => ({
       isAuthenticated: false,
+      token: null,
       user: null,
-      login: async (username: string, password: string) => {
-        // Simular una petición a API
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            if (username === 'admin' && password === 'admin') {
-              set({
-                isAuthenticated: true,
-                user: {
-                  username: 'admin',
-                  role: 'admin'
-                }
-              });
-              resolve(true);
-            } else {
-              resolve(false);
-            }
-          }, 800);
-        });
+      
+      loginSap: async (usuario: string, codvend: string = '', password: string) => {
+        
+        try {
+          const response = await fetch('https://lilix.ceramicaitalia.com:3001/loginsap', {
+            method: 'POST',
+            headers: {
+              'accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              usuario,
+              codvend,
+              password
+            })
+          });
+
+          const data = await response.json();
+         
+          if (data.succes) {
+           
+            set({
+              isAuthenticated: true,
+              token: data.token,
+              user: {
+                username: usuario,
+                role: 'sap',
+                sapData: data.data
+              }
+            });
+            console.log(data);
+            return true;
+          }
+          return false;
+        } catch (error) {
+          console.error('Error during SAP login:', error);
+          return false;
+        }
       },
       logout: () => {
         set({
           isAuthenticated: false,
+          token: null,
           user: null
         });
+        localStorage.removeItem('auth-storage');
+        localStorage.clear();
       }
     }),
     {

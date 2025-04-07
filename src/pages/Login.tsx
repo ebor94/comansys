@@ -1,27 +1,40 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../stores/authStore';
 
 const Login: React.FC = () => {
-  const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  
+  // Usar el store de autenticación
+  const authStore = useAuthStore();
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setLoading(true);
     
-    setTimeout(() => {
-      if (username === 'admin' && password === 'admin') {
-        localStorage.setItem('isAuthenticated', 'true');
+    try {
+      
+      const success =  await authStore.loginSap(username.toLocaleUpperCase(), '', password);
+      
+      if (success) {
+      localStorage.setItem('isAuthenticated', "true") 
         navigate('/dashboard');
       } else {
         setError('Usuario o contraseña incorrectos');
       }
+    } catch (err) {
+      setError('Error al intentar iniciar sesión');
+      console.error(err);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (

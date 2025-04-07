@@ -8,7 +8,7 @@ import Etiquetas from './pages/Etiquetas';
 import Inventario from './pages/Inventario';
 import { useAuthStore } from './stores/authStore';
 import Login from './pages/Login';
-
+import ProfilePage from './pages/ProfilePage';
 
 
 
@@ -42,6 +42,8 @@ function App() {
           <Route path="clientes" element={<Clientes />} />
           <Route path="etiquetas" element={<Etiquetas />} />
           <Route path="inventario" element={<Inventario />} />
+          <Route path="perfil" element={<ProfilePage />} />
+          
      
          
           

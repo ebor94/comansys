@@ -50,7 +50,7 @@ const Header: React.FC<HeaderProps> = () => {
             </svg>
           </button>
           <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
-            <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-fiori-light-gray">Mi perfil</a>
+            <a href="/perfil" className="block px-4 py-2 text-sm text-gray-700 hover:bg-fiori-light-gray">Mi perfil</a>
             <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-fiori-light-gray">Configuración</a>
             <button 
               onClick={handleLogout}
