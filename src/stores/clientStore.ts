@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // src/stores/clientStore.ts
 import { create } from 'zustand';
 import { consultarCliente, extraerDatosCliente } from '../services/sap';
@@ -101,7 +102,7 @@ export const useClientStore = create<ClientState>((set, get) => ({
         clienteExiste: false,
         msg: { ...get().msg, cedula: 'Error al consultar el cliente' }
       });
-      console.error('Error:', error.message);
+     // console.error('Error:', error.message);
     } finally {
       set({ isLoading: false }); // Desactivar loading
     }

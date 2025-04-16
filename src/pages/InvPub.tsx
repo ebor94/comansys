@@ -23,7 +23,10 @@ const InvPublic: React.FC = () => {
   } = useInventario();
 
   const { location, error: locationError, isLoading: locationLoading, getLocation } = useGeolocation();
-
+  if (location && location.address && location.address.ciudad) {
+    localStorage.setItem('ciudad', location.address.ciudad)
+  }
+  ; 
   // Componente para mostrar la ubicación
   const LocationInfo: React.FC = () => {
     if (locationError) {
@@ -63,6 +66,8 @@ const InvPublic: React.FC = () => {
           )}
         </div>
       );
+
+      
     }
 
     return null;

@@ -274,6 +274,14 @@ interface ParametrosBusquedaInventario {
   PARACANAL: string;
  }
 
+ interface ParametrosGuardadoBusqueda {
+  nit: string;
+  tipo: string;
+  elementoConsultado: string;
+ }
+
+ 
+
  interface ProductoInventario {
   material: string;
   descripcion: string;
@@ -317,6 +325,32 @@ export const buscarInventario = async (params: ParametrosBusquedaInventario): Pr
     }
     throw {
       message: 'Error inesperado al buscar en el inventario',
+       status: 500
+     };
+   }
+ };
+
+ export const saveSearch = async (params: ParametrosGuardadoBusqueda): Promise<[]> => {
+  try {
+    const response = await api.post('/producto/save-search', params);
+    if (!response.data) {
+      throw {
+        message: 'Error al buscar guardar las busquedas',
+        status: 400
+      };
+    }
+    return response.data;
+  } catch (error) {
+    console.error('Error al buscar guardar las busquedas:', error);
+    if (axios.isAxiosError(error)) {
+      const errorResponse: ErrorResponse = {
+        message: error.response?.data?.message || 'Error al buscar guardar las busquedas',
+        status: error.response?.status || 500
+      };
+      throw errorResponse;
+    }
+    throw {
+      message: 'Error al buscar guardar las busquedas',
        status: 500
      };
    }

@@ -36,6 +36,7 @@ export const useInventario = () => {
       inputPlaceholder: 'Seleccione Bodega....',
       showCancelButton: false,
       confirmButtonText: 'Aceptar',
+      confirmButtonColor: "#3085d6",
       allowOutsideClick: false,
       inputValidator: (value) => {
         return new Promise((resolve) => {

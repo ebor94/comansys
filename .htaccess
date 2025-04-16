@@ -1,9 +1,11 @@
 Options -MultiViews
 RewriteEngine On
-RewriteBase /comansys/
+RewriteBase /comansys
+RewriteRule ^index\.html$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.html [QSA,L]
+RewriteCond %{REQUEST_FILENAME} !-l
+RewriteRule . /comansys/index.html [L]
 
 # Seguridad
 <IfModule mod_headers.c>

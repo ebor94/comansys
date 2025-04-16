@@ -9,7 +9,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = () => {
   const navigate = useNavigate();
   const toggleSidebar = useUIStore((state) => state.toggleSidebar);
-  const user = useAuthStore((state) => state.user);
+  //const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   
   const handleLogout = () => {

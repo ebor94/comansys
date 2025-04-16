@@ -16,7 +16,7 @@ import InvPublic from './pages/InvPub';
 function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   return (
-    <BrowserRouter>
+    <BrowserRouter basename='/comansys' >
       <Routes>
         {/* Rutas públicas */}
         <Route path="/login" element={<Login />} />

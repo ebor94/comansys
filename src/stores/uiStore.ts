@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { Location } from '../hooks/useGeolocation';
 
 interface UIState {
   sidebarCollapsed: boolean;
