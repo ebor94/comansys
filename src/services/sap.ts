@@ -274,10 +274,10 @@ interface ParametrosBusquedaInventario {
   PARACANAL: string;
  }
 
- interface ParametrosGuardadoBusqueda {
+ export interface ParametrosGuardadoBusqueda {
   nit: string;
   tipo: string;
-  elementoConsultado: string;
+  ElementoConsultado: string;
  }
 
  

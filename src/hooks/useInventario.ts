@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { InventarioItem, LoteItem, CENTROS } from '../components/inventario/types';
 import { buscarInventario, inventarioLotes } from '../services/sap';
+import { useEstadistica } from './useEstadistica';
 
 export const useInventario = () => {
+  const { guardarBusquedaProducto } = useEstadistica();
   const [centroSeleccionado, setCentroSeleccionado] = useState<string>('');
   const [descripcion, setDescripcion] = useState<string>('');
   const [inventarioData, setInventarioData] = useState<InventarioItem[]>([]);
@@ -96,6 +98,12 @@ export const useInventario = () => {
       const inventario : InventarioItem[] = await buscarInventario(searchParams)
      // console.log(inventario);
       setInventarioData(inventario);
+      let ubicación = localStorage.getItem('ciudad') ?  localStorage.getItem('ciudad')  : centroSeleccionado ;
+      await guardarBusquedaProducto({
+        nit: "comansys",
+        tipo: "invpub", // Ajusta según el tipo de consulta
+        ElementoConsultado: `${descripcion.toUpperCase()}|${ubicación}` // Ajusta según el elemento consultado
+      });
     } catch (error) {
      //console.error('Error al consultar inventario:', error);
       Swal.fire({
