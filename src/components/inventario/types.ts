@@ -36,4 +36,5 @@ export const CENTROS = [
   { value: '3800', label: 'Centro Dis. Valledupar. [3800]' },
   { value: '3900', label: 'Centro Dis. Monteria. [3900]' },
   { value: '5000', label: 'Centro OUT Cucuta. [5000]' },
+  { value: '6000', label: 'Centro Gegaza [6000]' },
 ];

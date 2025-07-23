@@ -37,6 +37,10 @@ export const ListaInventarioMobile: React.FC<ListaInventarioMobileProps> = ({ da
               {/* Información principal */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
+                  <label className="text-sm text-gray-500">Almacen</label>
+                  <p className="font-medium text-gray-900">{item.almacen}</p>
+                </div>
+                <div>
                   <label className="text-sm text-gray-500">Disponible</label>
                   <p className="font-medium text-gray-900">{formatNumber(item.disponible)}</p>
                 </div>
