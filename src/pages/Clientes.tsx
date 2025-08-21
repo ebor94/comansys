@@ -26,6 +26,8 @@ const Clientes: React.FC = () => {
     depa,
     departamentos,
     municipios,
+    distritos,
+    distrito,
     errors,
     msg,
     registrarCliente,
@@ -88,6 +90,8 @@ const Clientes: React.FC = () => {
                 depa={depa}
                 departamentos={departamentos}
                 municipios={municipios}
+                distrito={distrito}
+                distritos={distritos}
                 onFieldChange={handleFieldChange}
               />
 

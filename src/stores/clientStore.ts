@@ -23,6 +23,8 @@ interface ClientState {
   depa: string;
   departamentos: any[];
   municipios: any[];
+  distritos: any[]; // <-- Añadido para corregir el error
+  distrito : '',
   clienteExiste: boolean;
   errors: string[];
   isLoading: boolean; // Nuevo estado para el loading
@@ -38,6 +40,7 @@ interface ClientState {
   limpiarFormulario: () => void;
   getTipoDocument: () => void;
   getCiudades: (dptoId: string) => void;
+  getDistritos: (cityc: string) => void;
   setField: (field: string, value: any) => void;
   volverAlMenu: () => void;
 }
@@ -61,6 +64,8 @@ export const useClientStore = create<ClientState>((set, get) => ({
   ciudad: '',
   depa: '',
   departamentos: [],
+  distritos: [],
+  distrito : '',
   municipios: [],
   clienteExiste: false,
   errors: [],
@@ -178,7 +183,39 @@ export const useClientStore = create<ClientState>((set, get) => ({
     // Aquí iría lógica específica relacionada con el tipo de documento
   },
   
-  getCiudades: (dptoId) => {
+  getCiudades: async (dptoId) => {
+  try {
+    const response = await fetch(`https://lilix.ceramicaitalia.com:3001/clientes/getciudad/${dptoId}`, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    // Extraer y transformar los datos de la respuesta
+    const ciudades = result.data.data.map((ciudad: { cityc: string; bezei: string; regio: string }) => ({
+      CITYC: ciudad.cityc,
+      BEZEI: ciudad.bezei,
+      REGIO: ciudad.regio
+    }));
+
+    set({ 
+      municipios: ciudades,
+      ciudad: ciudades.length > 0 ? ciudades[0].BEZEI : '',
+      depa : dptoId // Opcional: seleccionar la primera ciudad
+
+    });
+
+  } catch (error) {
+    console.error('Error al obtener ciudades:', error);
+    
+    // Fallback con datos hardcodeados
     const ciudadesPorDpto: {[key: string]: any[]} = {
       '11': [{ BEZEI: 'Bogotá' }],
       '05': [{ BEZEI: 'Medellín' }, { BEZEI: 'Envigado' }],
@@ -188,13 +225,78 @@ export const useClientStore = create<ClientState>((set, get) => ({
       municipios: ciudadesPorDpto[dptoId] || [],
       ciudad: dptoId === '11' ? 'Bogotá' : ''
     });
-  },
+  }
+},
+
+getDistritos: async ( cityc : string) => {
+  try {
+    // Concatenar regio y cityc para formar el código de ciudad
+    const distri = cityc.split('|');
+    const codigoCiudad = distri[0];
+    const pais = 'CO'; // Código de país fijo para Colombia
+    const url = `https://lilix.ceramicaitalia.com:3001/clientes/getdistrito/${codigoCiudad}/${pais}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    // Extraer y transformar los datos de la respuesta
+    const distritos = result.data.data.map((distrito: {
+      cityCode: string;
+      citypCode: string;
+      postCode: string;
+      cityPart: string;
+      commuCode: string;
+      country: string;
+      client: string;
+    }) => ({
+      CITYCODE: distrito.cityCode,
+      CITYPCODE: distrito.citypCode,
+      POSTCODE: distrito.postCode,
+      CITYPART: distrito.cityPart,
+      COMMUCODE: distrito.commuCode,
+      COUNTRY: distrito.country,
+      CLIENT: distrito.client
+    }));
+
+    set({ 
+      distritos: distritos,
+      distrito: distritos.length > 0 ? distritos[0].CITYPART : '' ,// Opcional: seleccionar el primer distrito
+      ciudad: distri[1] ? distri[1] : '' // Actualizar ciudad si es necesario
+    });
+
+  } catch (error) {
+    console.error('Error al obtener distritos:', error);
+    
+    // Fallback con datos vacíos o hardcodeados
+    set({ 
+      distritos: [],
+      distrito: ''
+    });
+  }
+},
   
   setField: (field, value) => {
+    
     set({ [field]: value } as any);
     
     if (field === 'dptos') {
       get().getCiudades(value);
+    }
+    if (field === 'ciudad') {
+      console.log(value);
+      
+      get().getDistritos(value);
+      //get().getDistritos(value);
     }
   },
   

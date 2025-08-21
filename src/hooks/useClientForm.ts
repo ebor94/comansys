@@ -36,15 +36,44 @@ export const useClientForm = () => {
   };
 
   // Simulando la carga de departamentos
-  useEffect(() => {
-    const deptosData = [
-      { BLAND: '05', BEZEI: 'Antioquia' },
-      { BLAND: '11', BEZEI: 'Bogotá D.C.' },
-      { BLAND: '08', BEZEI: 'Atlántico' },
-    ];
-    
-    useClientStore.setState({ departamentos: deptosData });
-  }, []);
+useEffect(() => {
+  const cargarDepartamentos = async () => {
+    try {
+      const response = await fetch('https://lilix.ceramicaitalia.com:3001/clientes/getdpto/CO', {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      // Extraer y transformar los datos de la respuesta
+      const departamentos = result.data.data.map((depto: { bland: string; bezei: string }) => ({
+        BLAND: depto.bland,
+        BEZEI: depto.bezei
+      }));
+
+      useClientStore.setState({ departamentos: departamentos });
+      
+    } catch (error) {
+      console.error('Error al obtener departamentos:', error);
+      
+      // Fallback con datos hardcodeados
+      const deptosData = [
+        { BLAND: '00', BEZEI: 'Sin Departamaneto' }
+      ];
+      useClientStore.setState({ departamentos: deptosData });
+    }
+  };
+
+  cargarDepartamentos();
+
+}, []);
 
   return {
     formVerificado,
