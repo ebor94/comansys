@@ -6,6 +6,11 @@ interface DatosPersonalesProps {
   snombre: string;
   papellido: string;
   sapellido: string;
+  disableSnombre : boolean;
+  disablePapellido : boolean;
+  disableSapellido : boolean;
+  disableClaseimpuesto : boolean;
+  disableCiiu : boolean;
   tratamiento: string;
   claseimpuesto: string;
   ciiu: string;
@@ -20,6 +25,11 @@ export const DatosPersonales: React.FC<DatosPersonalesProps> = ({
   pnombre,
   snombre,
   papellido,
+  disableSnombre,
+  disablePapellido,
+  disableSapellido ,
+  disableClaseimpuesto ,
+  disableCiiu ,
   sapellido,
   tratamiento,
   claseimpuesto,
@@ -56,6 +66,7 @@ export const DatosPersonales: React.FC<DatosPersonalesProps> = ({
             id="snombre"
             type="text"
             value={snombre}
+            disabled={disableSnombre}
             onChange={(e) => onFieldChange('snombre', e.target.value)}
           />
         </div>
@@ -72,6 +83,7 @@ export const DatosPersonales: React.FC<DatosPersonalesProps> = ({
             id="papellido"
             type="text"
             value={papellido}
+            disabled={disablePapellido}
             onChange={(e) => onFieldChange('papellido', e.target.value)}
             required
           />
@@ -85,6 +97,7 @@ export const DatosPersonales: React.FC<DatosPersonalesProps> = ({
             id="sapellido"
             type="text"
             value={sapellido}
+            disabled={disableSapellido}
             onChange={(e) => onFieldChange('sapellido', e.target.value)}
           />
         </div>
@@ -118,6 +131,7 @@ export const DatosPersonales: React.FC<DatosPersonalesProps> = ({
             className="shadow-sm border border-fiori-border rounded w-full py-2 px-3 text-fiori-text focus:outline-none focus:ring-2 focus:ring-fiori-blue focus:border-transparent"
             id="claseimpuesto"
             value={claseimpuesto}
+            disabled={disableClaseimpuesto}
             onChange={(e) => onFieldChange('claseimpuesto', e.target.value)}
           >
             <option value="" disabled>Seleccione</option>
@@ -138,6 +152,7 @@ export const DatosPersonales: React.FC<DatosPersonalesProps> = ({
             type="number"
             maxLength={4}
             value={ciiu}
+            disabled={disableCiiu}
             onChange={(e) => onFieldChange('ciiu', e.target.value)}
           />
         </div>

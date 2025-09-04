@@ -7,7 +7,12 @@ interface ClientState {
   cedula: string;
   tipoid: string;
   pnombre: string;
-  snombre: string;
+  snombre: string;  
+  disableSnombre : boolean;
+  disablePapellido : boolean;
+  disableSapellido : boolean;
+  disableClaseimpuesto  : boolean;
+  disableCiiu  : boolean;
   papellido: string;
   sapellido: string;
   tratamiento: string;
@@ -50,6 +55,11 @@ export const useClientStore = create<ClientState>((set, get) => ({
   tipoid: '',
   pnombre: '',
   snombre: '',
+  disableSnombre : false,
+  disablePapellido : false,
+  disableSapellido : false,
+  disableClaseimpuesto : false,
+  disableCiiu   : false,
   papellido: '',
   sapellido: '',
   tratamiento: '',
@@ -142,7 +152,18 @@ export const useClientStore = create<ClientState>((set, get) => ({
     if (!state.direccion) errors.push('Dirección es obligatoria');
     if (!state.dptos) errors.push('Departamento es obligatorio');
     if (!state.ciudad) errors.push('Ciudad es obligatoria');
-    
+
+//Validaciones adicionales
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (state.email && !emailRegex.test(state.email)) {
+      errors.push('Email no es válido');
+    }
+     if (state.tipoid  === '31' && state.claseimpuesto === 'PJ') {
+        if (state.cedula.length !== 9)errors.push('cuando es nit con persona juridica, La identificación debe tener 9 dígitos, Corregir!!');        
+      }
+    if(state.tipoid  === '31' && state.claseimpuesto === 'PN' && state.ciiu === '0010') errors.push('codigo ciiu errado, Corregir!!');
+
+
     set({ errors });
     
     if (errors.length === 0) {
@@ -288,6 +309,8 @@ getDistritos: async ( cityc : string) => {
   setField: (field, value) => {
     
     set({ [field]: value } as any);
+
+    console.log(`Field changed: ${field} = ${value}`);
     
     if (field === 'dptos') {
       get().getCiudades(value);
@@ -298,6 +321,34 @@ getDistritos: async ( cityc : string) => {
       get().getDistritos(value);
       //get().getDistritos(value);
     }
+
+    if (field === 'tipoid') {
+         set({ ciiu : '010' })
+         set({ disableCiiu : true })
+      //nit
+      if(value === '31'){
+        set({ disableSnombre : true })
+        set({ disablePapellido : true })
+        set({ disableSapellido : true })
+        set({ disableClaseimpuesto : true })
+        set({ claseimpuesto : 'PJ' })
+      }else{
+        set({ disableSnombre : false }) ;
+        set({ disablePapellido : false })
+        set({ disableSapellido : false })
+        set({ disableClaseimpuesto : false })
+        set({ claseimpuesto : '' })
+      } 
+      //cedual o tarjeta de identidad
+      if (value === '13' || value === '12'){
+        set({ claseimpuesto : 'PN' })
+        set({ disableClaseimpuesto : true })
+        set({ disableCiiu : false })
+        set({ ciiu : '010' })
+      }else{      
+          set({ disableClaseimpuesto : false })               
+      }
+  }
   },
   
   volverAlMenu: () => {

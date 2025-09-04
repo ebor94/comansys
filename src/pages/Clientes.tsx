@@ -11,6 +11,11 @@ const Clientes: React.FC = () => {
     tipoid,
     pnombre,
     snombre,
+    disableSnombre,
+    disablePapellido,
+    disableSapellido ,
+    disableClaseimpuesto ,
+    disableCiiu ,
     papellido,
     sapellido,
     tratamiento,
@@ -70,6 +75,11 @@ const Clientes: React.FC = () => {
               <DatosPersonales
                 pnombre={pnombre}
                 snombre={snombre}
+                disableSnombre ={disableSnombre}
+                disablePapellido={disablePapellido}
+                disableSapellido ={disableSapellido }
+                disableClaseimpuesto ={disableClaseimpuesto }
+                disableCiiu ={disableCiiu }
                 papellido={papellido}
                 sapellido={sapellido}
                 tratamiento={tratamiento}
