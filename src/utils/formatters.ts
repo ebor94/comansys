@@ -104,3 +104,45 @@ export const formatQuantity = (value: number | string, unit: string = ''): strin
 
   return unit ? `${formatted} ${unit}` : formatted;
 };
+
+/**
+ * Calcula el dígito verificador para un NIT (Número de Identificación Tributaria)
+ * Equivalente a la función ABAP calcular_dv
+ * 
+ * @param {string|number} nit - El número de NIT sin dígito verificador
+ * @returns {number} - El dígito verificador (0-9)
+ */
+export const calcularDV = (nit : string ) => {
+  // Validar que el NIT no esté vacío
+  if (!nit || nit === '') {
+    return 0;
+  }
+
+  // Convertir a string y rellenar con ceros a la izquierda (equivalente a CONVERSION_EXIT_ALPHA_INPUT)
+  let digitos = nit.toString().padStart(15, '0');
+  
+  // Array con los multiplicadores en el orden correcto
+  const multiplicadores = [71, 67, 59, 53, 47, 43, 41, 37, 29, 23, 19, 17, 13, 7, 3];
+  
+  let suma = 0;
+
+  // Calcular la suma ponderada
+  for (let i = 0; i < 15; i++) {
+    const digito = parseInt(digitos[i], 10);
+    suma += digito * multiplicadores[i];
+  }
+
+  // Calcular el módulo 11
+  suma = suma % 11;
+
+  // Determinar el dígito verificador
+  let digitoVerificador;
+  if (suma <= 1) {
+    digitoVerificador = suma;
+  } else {
+    digitoVerificador = 11 - suma;
+  }
+
+  return digitoVerificador;
+};
+

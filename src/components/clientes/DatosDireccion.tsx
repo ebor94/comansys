@@ -7,6 +7,8 @@ interface DatosDireccionProps {
   dptos: string;
   ciudad: string;
   distrito: string;
+  latitud?: string;
+  longitud?: string;
   depa: string;
   departamentos: Array<{ BLAND: string; BEZEI: string }>;
   municipios: Array<{ BEZEI: string; CITYC?: string; REGIO?: string }>;
@@ -16,9 +18,9 @@ interface DatosDireccionProps {
 
 interface ValidationResult {
   direccionValida: boolean;
-  latitud?: number;
-  longitud?: number;
   direccionFormateada?: string;
+  latitud?: string;
+  longitud?: string;
 }
 
 interface AddressComponents {
@@ -28,8 +30,6 @@ interface AddressComponents {
   administrative_area_level_1?: string;
   postal_code?: string;
 }
-
-
 
 // Popup del Mapa
 const MapPopup: React.FC<{
@@ -102,10 +102,10 @@ const MapPopup: React.FC<{
       setSelectedCoords({ lat, lng });
 
       geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-  if (status === 'OK' && results && results[0]) {
-            setSelectedAddress(results[0].formatted_address);
-          }
-        });
+        if (status === 'OK' && results && results[0]) {
+          setSelectedAddress(results[0].formatted_address);
+        }
+      });
     });
   };
 
@@ -199,6 +199,8 @@ export const DatosDireccion: React.FC<DatosDireccionProps> = ({
   ciudad,
   distrito,
   depa,
+  latitud,
+  longitud,
   departamentos = [],
   municipios = [],
   distritos = [],
@@ -259,7 +261,11 @@ export const DatosDireccion: React.FC<DatosDireccionProps> = ({
       if (result.dataDireccion) {
         setValidationResult(result.dataDireccion);
         
-        if (!result.dataDireccion.direccionValida) {
+        // ✅ CORRECCIÓN: Actualizar latitud y longitud cuando la validación es exitosa
+        if (result.dataDireccion.direccionValida && result.dataDireccion.latitud && result.dataDireccion.longitud) {
+          onFieldChange('latitud', result.dataDireccion.latitud);
+          onFieldChange('longitud', result.dataDireccion.longitud);
+        } else if (!result.dataDireccion.direccionValida) {
           // Mostrar popup del mapa si la dirección no es válida
           setShowMapPopup(true);
         }
@@ -274,14 +280,20 @@ export const DatosDireccion: React.FC<DatosDireccionProps> = ({
     }
   };
 
-  // Manejar confirmación desde el popup del mapa
+  // ✅ CORRECCIÓN: Manejar confirmación desde el popup del mapa
   const handleMapConfirmation = (address: string, lat: number, lng: number) => {
+    // Actualizar las coordenadas a través de onFieldChange
+    onFieldChange('latitud', lat.toString());
+    onFieldChange('longitud', lng.toString());
+    
+    // Actualizar el resultado de validación
     setValidationResult({
       direccionValida: true,
-      latitud: lat,
-      longitud: lng,
+      latitud: lat.toString(),
+      longitud: lng.toString(),
       direccionFormateada: address
     });
+
     setShowMapPopup(false);
     
     // Actualizar el campo de dirección con la dirección confirmada
@@ -432,6 +444,36 @@ export const DatosDireccion: React.FC<DatosDireccionProps> = ({
         </div>
       </div>
 
+      {/* Campos de coordenadas visibles y actualizables */}
+      {(latitud || longitud) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+          <div>
+            <label className="block text-fiori-text text-sm font-medium mb-2" htmlFor="latitud">
+              Latitud
+            </label>
+            <input
+              className="shadow-sm border border-fiori-border rounded w-full py-2 px-3 text-fiori-text focus:outline-none focus:ring-2 focus:ring-fiori-blue focus:border-transparent"
+              id="latitud"
+              type="text"
+              value={latitud || ''}
+              onChange={(e) => onFieldChange('latitud', e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-fiori-text text-sm font-medium mb-2" htmlFor="longitud">
+              Longitud
+            </label>
+            <input
+              className="shadow-sm border border-fiori-border rounded w-full py-2 px-3 text-fiori-text focus:outline-none focus:ring-2 focus:ring-fiori-blue focus:border-transparent"
+              id="longitud"
+              type="text"
+              value={longitud || ''}
+              onChange={(e) => onFieldChange('longitud', e.target.value)}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Validación de Dirección */}
       <div className="mt-6">
         <button
@@ -465,7 +507,7 @@ export const DatosDireccion: React.FC<DatosDireccionProps> = ({
                 )}
                 {validationResult.latitud && validationResult.longitud && (
                   <p className="text-sm mt-1">
-                    Coordenadas: {validationResult.latitud.toFixed(6)}, {validationResult.longitud.toFixed(6)}
+                    Coordenadas: {Number(validationResult.latitud).toFixed(6)}, {Number(validationResult.longitud).toFixed(6)}
                   </p>
                 )}
               </div>

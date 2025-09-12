@@ -6,10 +6,11 @@ interface VerificacionClienteProps {
   tipoid: string;
   formVerificado: boolean;
   msg: { cedula?: string };
-  isLoading: boolean; // Nuevo prop para el estado de carga
+  isLoading: boolean;
   onCedulaChange: (value: string) => void;
   onTipoIdChange: (value: string) => void;
   onVerificar: () => void;
+  useCalcularDV: (nit: string) => { nit: string; digitoVerificador: number; nitCompleto: string };
 }
 
 export const VerificacionCliente: React.FC<VerificacionClienteProps> = ({
@@ -17,11 +18,18 @@ export const VerificacionCliente: React.FC<VerificacionClienteProps> = ({
   tipoid,
   formVerificado,
   msg,
-  isLoading, // Nuevo prop
+  isLoading,
   onCedulaChange,
   onTipoIdChange,
   onVerificar,
+  useCalcularDV
 }) => {
+  // Calcular DV solo cuando el tipo de identificación sea NIT
+  const { digitoVerificador, nitCompleto } = useCalcularDV(tipoid === '31' ? cedula : '');
+  
+  // Verificar si es NIT
+  const isNIT = tipoid === '31';
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
@@ -37,14 +45,14 @@ export const VerificacionCliente: React.FC<VerificacionClienteProps> = ({
             value={cedula}
             onChange={(e) => onCedulaChange(e.target.value)}
             required
-            disabled={isLoading} // Deshabilitar durante la carga
+            disabled={isLoading}
           />
           <button
             className={`flex items-center justify-center min-w-[120px] bg-fiori-accent hover:bg-fiori-blue text-white font-medium py-2 px-4 rounded ml-2 transition-colors duration-200 ${
               isLoading ? 'opacity-75 cursor-not-allowed' : ''
             }`}
             onClick={onVerificar}
-            disabled={isLoading} // Deshabilitar durante la carga
+            disabled={isLoading}
           >
             {isLoading ? (
               <>
@@ -76,6 +84,22 @@ export const VerificacionCliente: React.FC<VerificacionClienteProps> = ({
           </button>
         </div>
         {msg.cedula && <p className="text-fiori-negative text-xs mt-1">{msg.cedula}</p>}
+        
+        {/* Mostrar información del DV cuando sea NIT */}
+        {isNIT && cedula && (
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-center space-x-4">
+              <div>
+                <span className="text-sm font-medium text-blue-700">Dígito Verificador:</span>
+                <span className="ml-2 text-lg font-bold text-blue-900">{digitoVerificador}</span>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-blue-700">NIT Completo:</span>
+                <span className="ml-2 text-sm text-blue-900">{nitCompleto}</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {formVerificado && (
@@ -88,7 +112,7 @@ export const VerificacionCliente: React.FC<VerificacionClienteProps> = ({
             id="tipoid"
             value={tipoid}
             onChange={(e) => onTipoIdChange(e.target.value)}
-            disabled={isLoading} // Deshabilitar durante la carga
+            disabled={isLoading}
           >
             <option value="" disabled>Seleccione</option>
             {TIPO_IDENTIFICACION_OPTIONS.map(option => (
@@ -97,6 +121,13 @@ export const VerificacionCliente: React.FC<VerificacionClienteProps> = ({
               </option>
             ))}
           </select>
+          
+          {/* Información adicional cuando es NIT */}
+          {isNIT && (
+            <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+              <strong>Nota:</strong> Al seleccionar NIT, se calcula automáticamente el dígito verificador.
+            </div>
+          )}
         </div>
       )}
     </div>

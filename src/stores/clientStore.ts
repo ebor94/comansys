@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // src/stores/clientStore.ts
 import { create } from 'zustand';
-import { consultarCliente, extraerDatosCliente } from '../services/sap';
+import { consultarCliente, createClient, extraerDatosCliente, mapFormDataToApiRequest } from '../services/sap';
 
 interface ClientState {
   cedula: string;
@@ -29,7 +29,9 @@ interface ClientState {
   departamentos: any[];
   municipios: any[];
   distritos: any[]; // <-- Añadido para corregir el error
-  distrito : '',
+  distrito : string,
+  longitud : string;
+  latitud: string;
   clienteExiste: boolean;
   errors: string[];
   isLoading: boolean; // Nuevo estado para el loading
@@ -75,6 +77,8 @@ export const useClientStore = create<ClientState>((set, get) => ({
   depa: '',
   departamentos: [],
   distritos: [],
+  latitud: '',
+  longitud: '',
   distrito : '',
   municipios: [],
   clienteExiste: false,
@@ -137,11 +141,16 @@ export const useClientStore = create<ClientState>((set, get) => ({
     });
   },
   
-  registrarCliente: () => {
-    const state = get();
-    const errors = [];
-    
-    // Validación
+registrarCliente: async () => {
+  const state = get();
+  const errors = [];
+  console.log(state);
+  
+  // ✅ Agregar estado de loading
+  set({ isLoading: true, errors: [] });
+  
+  try {
+    // Validaciones existentes
     if (!state.cedula) errors.push('Cédula es obligatoria');
     if (!state.tipoid) errors.push('Tipo de Identificación es obligatorio');
     if (!state.pnombre) errors.push('Primer nombre es obligatorio');
@@ -152,26 +161,104 @@ export const useClientStore = create<ClientState>((set, get) => ({
     if (!state.direccion) errors.push('Dirección es obligatoria');
     if (!state.dptos) errors.push('Departamento es obligatorio');
     if (!state.ciudad) errors.push('Ciudad es obligatoria');
+    if (!state.longitud) errors.push('Longitud es obligatoria');
+    if (!state.latitud) errors.push('Latitud es obligatoria');
 
-//Validaciones adicionales
+    // Validaciones adicionales existentes
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (state.email && !emailRegex.test(state.email)) {
       errors.push('Email no es válido');
     }
-     if (state.tipoid  === '31' && state.claseimpuesto === 'PJ') {
-        if (state.cedula.length !== 9)errors.push('cuando es nit con persona juridica, La identificación debe tener 9 dígitos, Corregir!!');        
-      }
-    if(state.tipoid  === '31' && state.claseimpuesto === 'PN' && state.ciiu === '0010') errors.push('codigo ciiu errado, Corregir!!');
-
-
-    set({ errors });
     
-    if (errors.length === 0) {
-      // Aquí iría la lógica para registrar el cliente (API call)
-      alert('Cliente registrado correctamente');
-      get().limpiarFormulario();
+    if (state.tipoid === '31' && state.claseimpuesto === 'PJ') {
+      if (state.cedula.length !== 9) {
+        errors.push('Cuando es NIT con persona jurídica, la identificación debe tener 9 dígitos, Corregir!!');        
+      }
     }
-  },
+    
+    if (state.tipoid === '31' && state.claseimpuesto === 'PN' && state.ciiu === '0010') {
+      errors.push('Código CIIU errado, Corregir!!');
+    }
+
+    // Si hay errores de validación, no continuar
+    if (errors.length > 0) {
+      set({ errors, isLoading: false });
+      return;
+    }
+
+    // ✅ Mapear datos del store al formato de la API
+    const apiData = mapFormDataToApiRequest({
+      // Mapeo de campos del store a los esperados por la función de mapeo
+      tipoPersona: state.claseimpuesto === 'PJ' ? 'Y' : 'X', // Y = Jurídica, X = Natural
+      //titulo: state.titulo || 'Sr.',
+      primerNombre: state.pnombre,
+      segundoNombre: state.snombre || '',
+      primerApellido: state.papellido,
+      segundoApellido: state.sapellido || '',
+      tipoDocumento: state.tipoid,
+      numeroDocumento: state.cedula,
+      direccion: state.direccion,
+      complementodir: state.complementodir || '',
+      //codigoPostal: state. || '540261', // Valor por defecto si no existe
+      ciudad: state.ciudad.split('|')[1] || state.ciudad, // Extraer nombre de ciudad si viene con formato
+      dptos: state.dptos,
+      telefono: state.telefono,
+      //extension: state.extension || '',
+     // celular: state.celular || state.telefono, // Usar teléfono si no hay celular
+      email: state.email,
+     //usuario: state.usuario || 'admin',
+      ciiu: state.ciiu || '4663',
+     // zonaTransporte: state.zonaTransporte || 'Z002',
+      fechaNacimiento: state.fechanacimiento ,
+      //  formatDateForAPI(state.fechanacimiento) : '01.01.1900',
+      //organizacionVentas: state.organizacionVentas || '1000',
+      //centro: state.centro || '3300',
+     // sector: state.sector || '10',
+      //canalDistribucion: state.canalDistribucion || '60',
+      //territorio: state.territorio || '401',
+      //oficinaVentas: state.oficinaVentas || '110',
+      //grupoVendedores: state.grupoVendedores || 'M7',
+      distrito: state.distrito || 'NORTE',
+      longitud: state.longitud,
+      latitud: state.latitud
+    });
+
+    // ✅ Llamar a la API para crear el cliente
+    const resultado = await createClient(apiData);
+
+    // ✅ Manejar respuesta exitosa
+    console.log('Cliente creado exitosamente:', resultado);
+    
+    // Actualizar el store con el resultado
+    set({ 
+      isLoading: false,
+      errors: [],
+     // clienteCreado: resultado,
+     // mensajeExito: 'Cliente registrado correctamente'
+    });
+
+    // Limpiar formulario después del éxito
+    get().limpiarFormulario();
+
+    // Mostrar mensaje de éxito
+    alert('Cliente registrado correctamente');
+
+  } catch (error: any) {
+    // ✅ Manejar errores de la API
+    console.error('Error al registrar cliente:', error);
+    
+    const errorMessage = error.message || 'Error inesperado al registrar el cliente';
+    
+    set({ 
+      isLoading: false,
+      errors: [errorMessage],
+     // mensajeExito: null
+    });
+
+    // Mostrar error al usuario
+    alert(`Error: ${errorMessage}`);
+  }
+},
   
   limpiarFormulario: () => {
     set({
@@ -191,7 +278,16 @@ export const useClientStore = create<ClientState>((set, get) => ({
       complementodir: '',
       dptos: '',
       ciudad: '',
+      distritos: [],
+      latitud: '',
+      longitud: '',
+      distrito : '',
       clienteExiste: false,
+      disableSnombre : false,
+      disablePapellido  : false,
+      disableSapellido  : false,
+      disableClaseimpuesto  : false,
+      disableCiiu : false,
       errors: [],
       msg: {
         cedula: '',
@@ -331,6 +427,8 @@ getDistritos: async ( cityc : string) => {
         set({ disablePapellido : true })
         set({ disableSapellido : true })
         set({ disableClaseimpuesto : true })
+         set({ ciiu : '' })
+        set({ disableCiiu : false })
         set({ claseimpuesto : 'PJ' })
       }else{
         set({ disableSnombre : false }) ;
@@ -343,7 +441,7 @@ getDistritos: async ( cityc : string) => {
       if (value === '13' || value === '12'){
         set({ claseimpuesto : 'PN' })
         set({ disableClaseimpuesto : true })
-        set({ disableCiiu : false })
+        set({ disableCiiu : true })
         set({ ciiu : '010' })
       }else{      
           set({ disableClaseimpuesto : false })               

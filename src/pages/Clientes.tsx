@@ -33,6 +33,8 @@ const Clientes: React.FC = () => {
     municipios,
     distritos,
     distrito,
+    latitud,
+    longitud,
     errors,
     msg,
     registrarCliente,
@@ -46,6 +48,7 @@ const Clientes: React.FC = () => {
     handleVerificarCliente,
     handleLimpiarFormulario,
     handleFieldChange,
+    useCalcularDV ,
   } = useClientForm();
 
   return (
@@ -68,6 +71,7 @@ const Clientes: React.FC = () => {
               getTipoDocument();
             }}
             onVerificar={handleVerificarCliente}
+            useCalcularDV={useCalcularDV} // Pasar la función como prop
           />
 
           {formVerificado && (
@@ -102,6 +106,8 @@ const Clientes: React.FC = () => {
                 municipios={municipios}
                 distrito={distrito}
                 distritos={distritos}
+                latitud={latitud}
+                longitud={longitud}
                 onFieldChange={handleFieldChange}
               />
 

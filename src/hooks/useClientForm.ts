@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useClientStore } from '../stores/clientStore';
+import { calcularDV } from '../utils/formatters';
 
 export const useClientForm = () => {
   const [formVerificado, setFormVerificado] = useState(false);
@@ -35,6 +36,22 @@ export const useClientForm = () => {
     }
  
   };
+
+  /**
+ * Hook personalizado para usar en componentes React
+ * @param {string|number} nit - El NIT a validar
+ * @returns {object} - Objeto con el NIT, dígito verificador y NIT completo
+ */
+ const useCalcularDV = (nit : string) => {
+  const digitoVerificador = calcularDV(nit);
+  const nitCompleto = nit ? `${nit}-${digitoVerificador}` : '';
+  
+  return {
+    nit,
+    digitoVerificador,
+    nitCompleto
+  };
+};
 
 
 
@@ -85,5 +102,6 @@ useEffect(() => {
     handleVerificarCliente,
     handleLimpiarFormulario,
     handleFieldChange,
+    useCalcularDV
   };
 };

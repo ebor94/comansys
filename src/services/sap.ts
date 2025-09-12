@@ -355,3 +355,171 @@ export const buscarInventario = async (params: ParametrosBusquedaInventario): Pr
      };
    }
  };
+
+// Interfaces para tipado
+interface CreateClientRequest {
+  I_PERSONA: string;
+  I_TITLE: string;
+  I_NOMBRE1: string;
+  I_NOMBRE2?: string;
+  I_NOMBRE3: string;
+  I_NOMBRE4?: string;
+  I_TIPO_ID: string;
+  I_ID: string;
+  I_ADDR1: string;
+  I_ADDR1_COMPL?: string;
+  I_POSTL_COD1: string;
+  I_CITY: string;
+  I_REGION: string;
+  I_COUNTRY: string;
+  I_TELEFONO: string;
+  I_EXTENSION?: string;
+  I_MOVIL: string;
+  I_EMAIL: string;
+  I_USUARIO: string;
+  I_CIIU: string;
+  I_TRANS_ZONE: string;
+  I_MOD_DIRECCION: string;
+  I_MOD_TELEFONO: string;
+  I_MOD_CORREO: string;
+  I_FECHA_NACIMIENTO: string;
+  I_VKORG: string;
+  I_VWERK: string;
+  I_SPART: string;
+  I_VTWEG: string;
+  I_BZIRK: string;
+  I_VKBUR: string;
+  I_VKGRP: string;
+  I_DISTRITO: string;
+  I_LONGITUD: string;
+  I_LATITUD: string;
+}
+
+interface ErrorResponse {
+  message: string;
+  status: number;
+}
+
+interface CreateClientResponse {
+  // Define aquí la estructura de respuesta esperada de la API
+  success: boolean;
+  data?: any;
+  message?: string;
+}
+
+// Función corregida
+export const createClient = async (clientData: CreateClientRequest): Promise<CreateClientResponse> => {
+  try {
+    // ✅ CORRECCIÓN: Endpoint corregido para coincidir con la API real
+    const response = await api.post('/clientes/createcliente/', clientData, {
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    // Validar que la respuesta sea exitosa
+    if (!response.data) {
+      throw {
+        message: 'Error al crear el cliente - Respuesta vacía',
+        status: 400
+      };
+    }
+
+    return response.data;
+    
+  } catch (error) {
+    console.error('Error al crear el cliente:', error);
+    
+    if (axios.isAxiosError(error)) {
+      // Manejo específico de errores de Axios
+      const errorResponse: ErrorResponse = {
+        message: error.response?.data?.message || 
+                error.response?.data?.error || 
+                `Error al crear el cliente: ${error.message}`,
+        status: error.response?.status || 500
+      };
+      throw errorResponse;
+    }
+    
+    // Error genérico
+    throw {
+      message: 'Error inesperado al crear el cliente',
+      status: 500
+    };
+  }
+};
+
+// Función auxiliar para mapear datos del formulario a la estructura de la API
+export const mapFormDataToApiRequest = (formData: any): CreateClientRequest => {
+  return {
+    I_PERSONA: formData.tipoPersona , // X = Persona natural, Y = Jurídica
+    I_TITLE: formData.titulo ,
+    I_NOMBRE1: formData.primerNombre || "",
+    I_NOMBRE2: formData.segundoNombre || "",
+    I_NOMBRE3: formData.primerApellido || "",
+    I_NOMBRE4: formData.segundoApellido || "",
+    I_TIPO_ID: formData.tipoDocumento ,
+    I_ID: formData.numeroDocumento || "",
+    I_ADDR1: formData.direccion || "",
+    I_ADDR1_COMPL: formData.complementodir || "",
+    I_POSTL_COD1: formData.codigoPostal || "",
+    I_CITY: formData.ciudad || "",
+    I_REGION: formData.dptos || "",
+    I_COUNTRY: "CO",
+    I_TELEFONO: formData.telefono || "",
+    I_EXTENSION: formData.extension || "",
+    I_MOVIL: formData.celular || "",
+    I_EMAIL: formData.email || "",
+    I_USUARIO: formData.usuario,
+    I_CIIU: formData.ciiu || "",
+    I_TRANS_ZONE: formData.zonaTransporte || "",
+    I_MOD_DIRECCION:formData.modDireccion || "",
+    I_MOD_TELEFONO: formData.modTelefono || "", 
+    I_MOD_CORREO: formData.modCorreo || "",
+    I_FECHA_NACIMIENTO: formData.fechaNacimiento || "01.01.1990",
+    I_VKORG: formData.organizacionVentas || "1000",
+    I_VWERK: formData.centro ,
+    I_SPART: formData.sector || "10",
+    I_VTWEG: formData.canalDistribucion || "60",
+    I_BZIRK: formData.territorio ,
+    I_VKBUR: formData.oficinaVentas,
+    I_VKGRP: formData.grupoVendedores ,
+    I_DISTRITO: formData.distrito || "",
+    I_LONGITUD: formData.longitud || "",
+    I_LATITUD: formData.latitud || ""
+  };
+};
+
+// Ejemplo de uso
+export const handleCreateClient = async (formData: any) => {
+  try {
+    // Mapear datos del formulario al formato de la API
+    const apiData = mapFormDataToApiRequest(formData);
+    
+    // Validaciones antes de enviar
+    if (!apiData.I_NOMBRE1 || !apiData.I_NOMBRE3 || !apiData.I_ID) {
+      throw {
+        message: 'Faltan campos obligatorios: Primer nombre, primer apellido y número de documento',
+        status: 400
+      };
+    }
+
+    if (!apiData.I_EMAIL || !apiData.I_EMAIL.includes('@')) {
+      throw {
+        message: 'Email inválido',
+        status: 400
+      };
+    }
+
+    // Crear el cliente
+    const result = await createClient(apiData);
+    
+    console.log('Cliente creado exitosamente:', result);
+    return result;
+    
+  } catch (error) {
+    console.error('Error en handleCreateClient:', error);
+    throw error;
+  }
+};
