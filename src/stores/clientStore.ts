@@ -212,7 +212,7 @@ registrarCliente: async () => {
       fechaNacimiento: state.fechanacimiento ,
       //  formatDateForAPI(state.fechanacimiento) : '01.01.1900',
       //organizacionVentas: state.organizacionVentas || '1000',
-      //centro: state.centro || '3300',
+      centro: useAuthStore.getState().centro,
      // sector: state.sector || '10',
       //canalDistribucion: state.canalDistribucion || '60',
       //territorio: state.territorio || '401',
