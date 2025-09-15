@@ -10,6 +10,7 @@ interface SapUserData {
 interface AuthState {
   isAuthenticated: boolean;
   token: string | null;
+  centro: any | null;
   user: {
     username: string;
     role: string;
@@ -26,6 +27,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       token: null,
       user: null,
+      centro: null,
       
       loginSap: async (usuario: string, codvend: string = '', password: string) => {
         
@@ -46,7 +48,7 @@ export const useAuthStore = create<AuthState>()(
           const data = await response.json();
          
           if (data.succes) {
-           
+             let centroData = (data.data as SapUserData[]).find((item: SapUserData) => item.partxt === 'Centro') || null;
             set({
               isAuthenticated: true,
               token: data.token,
@@ -54,8 +56,12 @@ export const useAuthStore = create<AuthState>()(
                 username: usuario,
                 role: 'sap',
                 sapData: data.data
-              }
+              },
+                   
+              centro : centroData?.parva
             });
+
+           
             console.log(data);
             return true;
           }

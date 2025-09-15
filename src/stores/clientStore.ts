@@ -2,6 +2,7 @@
 // src/stores/clientStore.ts
 import { create } from 'zustand';
 import { consultarCliente, createClient, extraerDatosCliente, mapFormDataToApiRequest } from '../services/sap';
+import { useAuthStore } from './authStore';
 
 interface ClientState {
   cedula: string;
@@ -189,8 +190,8 @@ registrarCliente: async () => {
     // ✅ Mapear datos del store al formato de la API
     const apiData = mapFormDataToApiRequest({
       // Mapeo de campos del store a los esperados por la función de mapeo
-      tipoPersona: state.claseimpuesto === 'PJ' ? 'Y' : 'X', // Y = Jurídica, X = Natural
-      //titulo: state.titulo || 'Sr.',
+      tipoPersona: state.claseimpuesto ,
+      titulo: state.tratamiento || 'Sr.',
       primerNombre: state.pnombre,
       segundoNombre: state.snombre || '',
       primerApellido: state.papellido,
@@ -199,16 +200,15 @@ registrarCliente: async () => {
       numeroDocumento: state.cedula,
       direccion: state.direccion,
       complementodir: state.complementodir || '',
-      //codigoPostal: state. || '540261', // Valor por defecto si no existe
+      codigoPostal: '', // Valor por defecto si no existe
       ciudad: state.ciudad.split('|')[1] || state.ciudad, // Extraer nombre de ciudad si viene con formato
       dptos: state.dptos,
       telefono: state.telefono,
-      //extension: state.extension || '',
-     // celular: state.celular || state.telefono, // Usar teléfono si no hay celular
+      celular: state.telefono || state.telefono, // Usar teléfono si no hay celular
       email: state.email,
-     //usuario: state.usuario || 'admin',
-      ciiu: state.ciiu || '4663',
-     // zonaTransporte: state.zonaTransporte || 'Z002',
+      usuario: useAuthStore.getState().user?.username,
+      ciiu: state.ciiu || '010',
+      // zonaTransporte: state.zonaTransporte || 'Z002',
       fechaNacimiento: state.fechanacimiento ,
       //  formatDateForAPI(state.fechanacimiento) : '01.01.1900',
       //organizacionVentas: state.organizacionVentas || '1000',
@@ -218,7 +218,7 @@ registrarCliente: async () => {
       //territorio: state.territorio || '401',
       //oficinaVentas: state.oficinaVentas || '110',
       //grupoVendedores: state.grupoVendedores || 'M7',
-      distrito: state.distrito || 'NORTE',
+      distrito: state.distrito ,
       longitud: state.longitud,
       latitud: state.latitud
     });
