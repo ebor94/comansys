@@ -48,7 +48,7 @@ export const useAuthStore = create<AuthState>()(
           const data = await response.json();
          
           if (data.succes) {
-             let centroData = (data.data as SapUserData[]).find((item: SapUserData) => item.partxt === 'Centro') || null;
+             let centroData = (data.data as SapUserData[]).find((item: SapUserData) => item.parid === 'WRK') || null;
             set({
               isAuthenticated: true,
               token: data.token,
