@@ -482,7 +482,7 @@ export const mapFormDataToApiRequest = (formData: any): CreateClientRequest => {
     I_VWERK: formData.centro ,
     I_SPART: formData.sector || "10",
     I_VTWEG: formData.canalDistribucion || "60",
-    I_BZIRK: formData.territorio ,
+    I_BZIRK: formData.zona ,
     I_VKBUR: formData.oficinaVentas,
     I_VKGRP: formData.grupoVendedores ,
     I_DISTRITO: formData.distrito || "",

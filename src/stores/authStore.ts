@@ -11,6 +11,11 @@ interface AuthState {
   isAuthenticated: boolean;
   token: string | null;
   centro: any | null;
+  oficinaVentas: string | null;
+  canal: string | null;
+  zona: string | null;
+  grupoVendedor: string | null;
+  organizacionVentas?: string | null;
   user: {
     username: string;
     role: string;
@@ -28,7 +33,11 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       user: null,
       centro: null,
-      
+      oficinaVentas: null,
+      canal: null,
+      zona: null,
+      grupoVendedor: null,
+      organizacionVentas: null,
       loginSap: async (usuario: string, codvend: string = '', password: string) => {
         
         try {
@@ -49,6 +58,11 @@ export const useAuthStore = create<AuthState>()(
          
           if (data.succes) {
              let centroData = (data.data as SapUserData[]).find((item: SapUserData) => item.parid === 'WRK') || null;
+             let oficinaVentasData = (data.data as SapUserData[]).find((item: SapUserData) => item.parid === 'VKB') || null;
+             let canalData = (data.data as SapUserData[]).find((item: SapUserData) => item.parid === 'VTW') || null;
+             let zonaData = (data.data as SapUserData[]).find((item: SapUserData) => item.parid === 'BZI') || null;
+             let grupoVendedorData = (data.data as SapUserData[]).find((item: SapUserData) => item.parid === 'VKG') || null;
+             let organizacionVentasData = (data.data as SapUserData[]).find((item: SapUserData) => item.parid === 'VKO') || null;
             set({
               isAuthenticated: true,
               token: data.token,
@@ -58,7 +72,13 @@ export const useAuthStore = create<AuthState>()(
                 sapData: data.data
               },
                    
-              centro : centroData?.parva
+              centro : centroData?.parva,
+              oficinaVentas : oficinaVentasData?.parva,
+              canal : canalData?.parva,
+              zona : zonaData?.parva,
+              grupoVendedor : grupoVendedorData?.parva,
+              organizacionVentas : organizacionVentasData?.parva
+
             });
 
            

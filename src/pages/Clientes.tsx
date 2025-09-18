@@ -108,7 +108,7 @@ const Clientes: React.FC = () => {
                 distritos={distritos}
                 latitud={latitud}
                 longitud={longitud}
-                onFieldChange={handleFieldChange}
+                 onFieldChange={handleFieldChange}
               />
 
               {/* Errores */}

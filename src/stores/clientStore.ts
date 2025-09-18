@@ -10,6 +10,7 @@ interface ClientState {
   pnombre: string;
   snombre: string;  
   disableSnombre : boolean;
+  codPostal : string;
   disablePapellido : boolean;
   disableSapellido : boolean;
   disableClaseimpuesto  : boolean;
@@ -74,6 +75,7 @@ export const useClientStore = create<ClientState>((set, get) => ({
   direccion: '',
   complementodir: '',
   dptos: '',
+  codPostal : '',
   ciudad: '',
   depa: '',
   departamentos: [],
@@ -145,7 +147,7 @@ export const useClientStore = create<ClientState>((set, get) => ({
 registrarCliente: async () => {
   const state = get();
   const errors = [];
-  console.log(state);
+  //console.log(state);
   
   // ✅ Agregar estado de loading
   set({ isLoading: true, errors: [] });
@@ -200,7 +202,7 @@ registrarCliente: async () => {
       numeroDocumento: state.cedula,
       direccion: state.direccion,
       complementodir: state.complementodir || '',
-      codigoPostal: '', // Valor por defecto si no existe
+      codigoPostal: state.codPostal, // Valor por defecto si no existe
       ciudad: state.ciudad.split('|')[1] || state.ciudad, // Extraer nombre de ciudad si viene con formato
       dptos: state.dptos,
       telefono: state.telefono,
@@ -208,26 +210,25 @@ registrarCliente: async () => {
       email: state.email,
       usuario: useAuthStore.getState().user?.username,
       ciiu: state.ciiu || '010',
-      // zonaTransporte: state.zonaTransporte || 'Z002',
+      zona: useAuthStore.getState().zona || '',
       fechaNacimiento: state.fechanacimiento ,
-      //  formatDateForAPI(state.fechanacimiento) : '01.01.1900',
-      //organizacionVentas: state.organizacionVentas || '1000',
+      organizacionVentas: useAuthStore.getState().organizacionVentas || '1000',
       centro: useAuthStore.getState().centro,
-     // sector: state.sector || '10',
-      //canalDistribucion: state.canalDistribucion || '60',
-      //territorio: state.territorio || '401',
-      //oficinaVentas: state.oficinaVentas || '110',
-      //grupoVendedores: state.grupoVendedores || 'M7',
+      sector:  '10',
+      canalDistribucion: useAuthStore.getState().canal || '60',
+      oficinaVentas: useAuthStore.getState().oficinaVentas || '110',
+      grupoVendedores: useAuthStore.getState().grupoVendedor || 'M7',
       distrito: state.distrito ,
       longitud: state.longitud,
       latitud: state.latitud
     });
 
     // ✅ Llamar a la API para crear el cliente
-    const resultado = await createClient(apiData);
+    console.log('Datos para la API:', apiData); // Debugging
+    //const resultado = await createClient(apiData);
 
     // ✅ Manejar respuesta exitosa
-    console.log('Cliente creado exitosamente:', resultado);
+    //console.log('Cliente creado exitosamente:', apiData);
     
     // Actualizar el store con el resultado
     set({ 
@@ -412,8 +413,11 @@ getDistritos: async ( cityc : string) => {
       get().getCiudades(value);
     }
     if (field === 'ciudad') {
-      console.log(value);
-      
+      let postalcode = value.split('|');
+      if(postalcode[0]){
+        set({ codPostal : postalcode[0] });
+      }
+    
       get().getDistritos(value);
       //get().getDistritos(value);
     }
