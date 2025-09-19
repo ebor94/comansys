@@ -189,11 +189,23 @@ registrarCliente: async () => {
       return;
     }
 
+    const modificacionFlags = state.clienteExiste 
+  ? {
+      modDireccion: 'X',
+      modTelefono: 'X',
+      modCorreo: 'X'
+    }
+  : {
+      modDireccion: '',
+      modTelefono: '',
+      modCorreo: ''
+    };
+
     // ✅ Mapear datos del store al formato de la API
     const apiData = mapFormDataToApiRequest({
       // Mapeo de campos del store a los esperados por la función de mapeo
       tipoPersona: state.claseimpuesto ,
-      titulo: state.tratamiento || 'Sr.',
+      titulo: state.tratamiento ,
       primerNombre: state.pnombre,
       segundoNombre: state.snombre || '',
       primerApellido: state.papellido,
@@ -220,15 +232,17 @@ registrarCliente: async () => {
       grupoVendedores: useAuthStore.getState().grupoVendedor || 'M7',
       distrito: state.distrito ,
       longitud: state.longitud,
-      latitud: state.latitud
+      latitud: state.latitud,
+      ...modificacionFlags
+      
     });
 
     // ✅ Llamar a la API para crear el cliente
     console.log('Datos para la API:', apiData); // Debugging
-    //const resultado = await createClient(apiData);
+    const resultado = await createClient(apiData);
 
     // ✅ Manejar respuesta exitosa
-    //console.log('Cliente creado exitosamente:', apiData);
+    console.log('Cliente creado exitosamente:', resultado);
     
     // Actualizar el store con el resultado
     set({ 
